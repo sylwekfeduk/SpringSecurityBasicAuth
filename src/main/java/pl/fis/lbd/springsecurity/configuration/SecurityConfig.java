@@ -24,11 +24,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/api/admin").hasRole("ADMIN")
-                .antMatchers(HttpMethod.DELETE,"/api/admin").hasRole("ADMIN")
-                .antMatchers(HttpMethod.PUT,"/api/user").hasAnyRole("ADMIN", "USER")
-                .antMatchers(HttpMethod.GET, "/api/admin").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/api/user").permitAll()
+                .antMatchers("/api/admin").hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.PUT,"/api/user").hasAnyAuthority("USER_EDIT", "ADMIN")
+                .antMatchers(HttpMethod.GET,"/api/user").hasAnyAuthority("USER_READ", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();
@@ -40,14 +38,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UserDetails admin = User.builder()
                 .password(passwordEncoder().encode("admin"))
                 .username("admin")
-                .roles("ADMIN", "USER")
+                .authorities("ADMIN")
                 .build();
         UserDetails user = User.builder()
                 .password(passwordEncoder().encode("user"))
                 .username("user")
-                .roles("USER")
+                .authorities("USER_READ", "USER_EDIT")
                 .build();
-        return new InMemoryUserDetailsManager(admin, user);
+        UserDetails spectator = User.builder()
+                .password(passwordEncoder().encode("spectator"))
+                .username("spectator")
+                .authorities("USER_READ")
+                .build();
+        return new InMemoryUserDetailsManager(admin, user, spectator);
     }
 
     @Bean

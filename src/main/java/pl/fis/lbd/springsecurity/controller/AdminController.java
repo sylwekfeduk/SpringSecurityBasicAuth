@@ -13,7 +13,7 @@ public class AdminController {
         return "This is admin!";
     }
 
-    @PutMapping
+    @PostMapping
     public String createUser() {
         return "User created!";
     }

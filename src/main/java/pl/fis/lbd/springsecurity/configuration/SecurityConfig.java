@@ -2,6 +2,7 @@ package pl.fis.lbd.springsecurity.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,11 +24,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/admin").hasRole("ADMIN")
-                .antMatchers("/api/user").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.POST,"/api/admin").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE,"/api/admin").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PUT,"/api/user").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, "/api/admin").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/api/user").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin();
+                .httpBasic();
     }
 
     @Override
